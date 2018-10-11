@@ -1,0 +1,18 @@
+logs
+*target
+.history
+.idea
+.idea_modules
+.classpath
+.project
+.settings
+.DS_Store
+
+# hidden cross project folders
+shared/.js
+shared/.jvm
+
+# temp files
+.~*
+*~
+*.orig
