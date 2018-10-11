@@ -5,7 +5,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val server = (project in file("server"))
-  .enablePlugins(SbtWeb, WebScalaJSBundlerPlugin)
+  .enablePlugins(SbtWeb)
   .settings(commonSettings)
   .settings(
     scalaJSProjects := Seq(client),
@@ -25,18 +25,35 @@ lazy val server = (project in file("server"))
 
 
 lazy val client = (project in file("client"))
-  .enablePlugins(ScalaJSWeb, ScalaJSPlugin, ScalaJSBundlerPlugin)
+  .enablePlugins(ScalaJSWeb, ScalaJSPlugin)
   .settings(commonSettings)
   .settings(
     scalaJSUseMainModuleInitializer := true,
+    dependencyOverrides ++= Seq(
+      "org.webjars.npm" % "js-tokens" % "3.0.2",
+    ),
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.6",
       "com.github.japgolly.scalajs-react" %%% "core" % "1.3.1",
       "com.github.japgolly.scalajs-react" %%% "extra" % "1.3.1"
     ),
-    npmDependencies in Compile ++= Seq(
-      "react" -> "16.5.1",
-      "react-dom" -> "16.5.1"
+    jsDependencies ++= Seq(
+      "org.webjars.npm" % "react" % "16.5.1"
+        /        "umd/react.development.js"
+        minified "umd/react.production.min.js"
+        commonJSName "React",
+
+      "org.webjars.npm" % "react-dom" % "16.5.1"
+        /         "umd/react-dom.development.js"
+        minified  "umd/react-dom.production.min.js"
+        dependsOn "umd/react.development.js"
+        commonJSName "ReactDOM",
+
+      "org.webjars.npm" % "react-dom" % "16.5.1"
+        /         "umd/react-dom-server.browser.development.js"
+        minified  "umd/react-dom-server.browser.production.min.js"
+        dependsOn "umd/react-dom.development.js"
+        commonJSName "ReactDOMServer"
     )
   )
   .dependsOn(sharedJs)
