@@ -35,6 +35,7 @@ lazy val client = (project in file("client"))
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.6",
       "com.github.japgolly.scalajs-react" %%% "core" % "1.3.1",
+      "com.github.japgolly.scalajs-react" %%% "extra" % "1.3.1",
       "com.github.japgolly.scalacss" %%% "core" % "0.5.5",
       "com.github.japgolly.scalacss" %%% "ext-react" % "0.5.5"
     ),

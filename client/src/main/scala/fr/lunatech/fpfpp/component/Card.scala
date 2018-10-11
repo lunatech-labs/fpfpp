@@ -1,16 +1,46 @@
 package fr.lunatech.fpfpp.component
 
-import japgolly.scalajs.react.{ BackendScope, ScalaComponent }
+import fr.lunatech.fpfpp.model.Profile
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.OnUnmount
 import japgolly.scalajs.react.vdom.html_<^._
+import scalacss.DevDefaults._
+import scalacss.ScalaCssReact._
+import scalacss.internal.mutable.StyleSheet
 
 object Card {
 
-  case class Props()
-  class Backend($: BackendScope[Props, Unit]) {
+  object Style extends StyleSheet.Inline {
 
-    def render() = {
+    import dsl._
+
+    val card = style(
+      display.inlineBlock,
+      borderRadius(8.px),
+      overflow.hidden,
+      height(100.%%),
+      width(100.%%),
+      backgroundPosition := "center",
+      backgroundSize := "cover"
+    )
+  }
+
+  Style.addToDocument()
+
+  case class Props(
+    profile: Profile,
+    fp: Callback,
+    fpp: Callback
+  )
+
+
+  class Backend($: BackendScope[Props, Unit]) extends OnUnmount {
+
+    def render(props: Props) = {
+
       <.div(
-        "TOTO"
+        Style.card,
+        ^.backgroundImage := s"url(${props.profile.image})"
       )
     }
   }
@@ -20,6 +50,6 @@ object Card {
     .renderBackend[Backend]
     .build
 
-  def apply() = component(Props())
+  def apply(props: Props) = component(props)
 
 }
