@@ -6,6 +6,9 @@ import japgolly.scalajs.react.{BackendScope, Callback, ScalaComponent}
 import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
 import org.scalajs.dom.ext.KeyCode
+import scalacss.DevDefaults._
+import scalacss.ScalaCssReact._
+import scalacss.internal.mutable.StyleSheet
 
 object HomePage {
 
@@ -40,17 +43,36 @@ object HomePage {
     def render(props: Props) =
       <.div(
         ^.className := "fpfpp",
+        Style.content,
         <.div(
           ^.className := "fpfpp-cards",
           Card()
         ),
         <.div(
           ^.className := "fpfpp-buttons",
+          Style.buttons,
           Button(Button.Props("nop", "fa-ban", iHaveNotFear)),
           Button(Button.Props("refresh", "fa-sync", refresh)),
           Button(Button.Props("love", "fa-heart", iHaveFear))
         )
       )
   }
+
+
+  object Style extends StyleSheet.Inline {
+    import dsl._
+    val content = style(
+      margin(auto),
+      width(50.%%),
+      padding(10.px)
+    )
+
+    val buttons = style(
+      display.flex,
+      justifyContent.spaceBetween,
+    )
+  }
+
+  Style.addToDocument()
 
 }
