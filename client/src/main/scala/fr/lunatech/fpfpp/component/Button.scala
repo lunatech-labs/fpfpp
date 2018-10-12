@@ -19,7 +19,12 @@ object Button {
 
   class Backend($: BackendScope[Props, Unit]) {
     def render(props: Props) =
-      <.button(Style.button, ^.id := props.name, ^.className := s"fa ${props.icon}")
+      <.button(
+        Style.button,
+        ^.id := props.name,
+        ^.className := s"fa ${props.icon}",
+        ^.onClick --> props.action
+      )
   }
 
   object Style extends StyleSheet.Inline {
