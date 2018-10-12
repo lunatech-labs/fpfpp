@@ -25,6 +25,8 @@ object Button {
   object Style extends StyleSheet.Inline {
     import dsl._
     val button = style(
+      width(40.px),
+      height(40.px),
       fontSize(32.px),
       verticalAlign.middle,
       padding(0.px),

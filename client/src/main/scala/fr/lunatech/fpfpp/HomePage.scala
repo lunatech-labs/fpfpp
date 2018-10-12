@@ -26,8 +26,8 @@ object HomePage {
         ),
         <.div(
           ^.className := "fpfpp-buttons",
-          Button(Button.Props("nop", "fa-remove", Callback.empty)),
-          Button(Button.Props("refresh", "fa-refresh", Callback.empty)),
+          Button(Button.Props("nop", "fa-ban", Callback.empty)),
+          Button(Button.Props("refresh", "fa-sync", Callback.empty)),
           Button(Button.Props("love", "fa-heart", Callback.empty))
         )
       )
