@@ -1,44 +1,54 @@
 package fr.lunatech.fpfpp.component
 
-import fr.lunatech.fpfpp.Image
-import japgolly.scalajs.react.{BackendScope, ScalaComponent}
+import fr.lunatech.fpfpp.model.Profile
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.OnUnmount
 import japgolly.scalajs.react.vdom.html_<^._
 import scalacss.DevDefaults._
 import scalacss.ScalaCssReact._
 import scalacss.internal.mutable.StyleSheet
+
 object Card {
 
-  case class Props(images: Seq[Image])
-  case class State(
-      image: Option[Image] = None
-  )
-  class Backend($ : BackendScope[Props, State]) {
+  object Style extends StyleSheet.Inline {
 
-    def render(props: Props, state: State) = {
+    import dsl._
+
+    val card = style(
+      display.inlineBlock,
+      borderRadius(8.px),
+      overflow.hidden,
+      height(100.%%),
+      width(100.%%),
+      backgroundPosition := "center",
+      backgroundSize := "cover",
+      boxShadow := "0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12)"
+    )
+  }
+
+  Style.addToDocument()
+
+  case class Props(
+    profile: Profile
+  )
+
+
+  class Backend($: BackendScope[Props, Unit]) extends OnUnmount {
+
+    def render(props: Props) = {
+
       <.div(
-        state.image.map { im =>
-          <.img(Style.img, ^.key := im.name, ^.src := im.url)()
-        }
+        Style.card,
+        ^.backgroundImage := s"url(${props.profile.image.url})"
       )
     }
   }
 
   val component = ScalaComponent
     .builder[Props]("Card")
-    .initialStateFromProps(props => State(image = props.images.lift(2)))
     .renderBackend[Backend]
-    .componentWillReceiveProps(o =>
-      o.modState(_.copy(image = o.nextProps.images.lift(2))))
     .build
 
-  def apply(props: Props) = component(props)
+  def apply(props: Props): VdomNode = component(props)
 
-  object Style extends StyleSheet.Inline {
-    import dsl._
-    val img = style(
-      width(100.%%)
-    )
-  }
-
-  Style.addToDocument()
 }

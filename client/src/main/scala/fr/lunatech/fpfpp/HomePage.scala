@@ -1,12 +1,10 @@
 package fr.lunatech.fpfpp
 
-import fr.lunatech.fpfpp.component.{Button, Card}
+import fr.lunatech.fpfpp.component.{ Button, Card, _ }
+import fr.lunatech.fpfpp.model.Profile
 import fr.lunatech.fpfpp.utils.ApiClient
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.{BackendScope, Callback, ScalaComponent}
-import org.scalajs.dom
-import org.scalajs.dom.KeyboardEvent
-import org.scalajs.dom.ext.KeyCode
 import scalacss.DevDefaults._
 import scalacss.ScalaCssReact._
 import scalacss.internal.mutable.StyleSheet
@@ -21,77 +19,106 @@ object HomePage {
       .initialState(State(Seq.empty))
       .renderBackend[Backend]
       .componentDidMount(_.backend.start)
-      .componentWillUnmount(_.backend.dispose)
       .build
+
+  case class State(
+    profiles: Seq[Profile]
+  )
 
   case class Props()
 
-  case class State(
-      images: Seq[Image]
-  )
+  class Backend($: BackendScope[Props, State]) {
 
-  class Backend($ : BackendScope[Props, State]) {
+    val stackRef = Ref.toScalaComponent(CardStack.component)
 
-    def modStateError: Exception => Callback =
-      e => $.modState(_.copy(images = Seq.empty))
+    def pop = $.modState(state =>
+      state.copy(profiles = state.profiles.drop(1))
+    )
 
     private def iHaveFear: Callback = Callback {
       println("I have fear dude !!")
-    }
+    } >> pop
+
     private def iHaveNotFear: Callback = Callback {
       println("I have not fear dude !!")
-    }
-    private def refresh: Callback = Callback { println("Refresh !!") }
+    } >> pop
 
-    private def onKeyDown(event: KeyboardEvent): Unit =
-      $.props
-        .flatMap { props =>
-          event.keyCode match {
-            case KeyCode.Left  => iHaveNotFear
-            case KeyCode.Right => iHaveFear
-            case _             => Callback.empty
-          }
-        }
-        .runNow()
+    private def refresh: Callback = Callback {
+      println("Refresh !!")
+    }
+
+    val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
+    val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
+
+    def modStateError: Exception => Callback =
+      e => $.modState(_.copy(profiles = Seq.empty))
 
     def start: Callback =
-      Callback { dom.window.addEventListener("keydown", onKeyDown) } >> ApiClient
-        .getImages(images => {
-          $.modState(_.copy(images = images))
-        }, modStateError)
-    def dispose: Callback = Callback {
-      dom.window.removeEventListener("keydown", onKeyDown)
-    }
+      ApiClient.getImages(images =>
+        $.modState(_.copy(profiles = images.zipWithIndex.map {
+          case (img, i) => Profile(i.toString, img)
+        })), modStateError
+      )
+
 
     def render(props: Props, state: State) =
       <.div(
         ^.className := "fpfpp",
         Style.content,
         <.div(
-          ^.className := "fpfpp-cards",
-          Card(Card.Props(state.images))
-        ),
-        <.div(
-          ^.className := "fpfpp-buttons",
-          Style.buttons,
-          Button(Button.Props("nop", "fa-ban", iHaveNotFear)),
-          Button(Button.Props("refresh", "fa-sync", refresh)),
-          Button(Button.Props("love", "fa-heart", iHaveFear))
+          Style.cards,
+          stackRef.component(
+            CardStack.Props(
+              state.profiles.map(profile => profile.id -> Card(Card.Props(profile))),
+              <.span(Style.tag, Style.fpTag, "Fait Peur"),
+              iHaveFear,
+              <.span(Style.tag, Style.fppTag, "Fait Pas Peur"),
+              iHaveNotFear
+            )
+          ),
+          <.div(
+            Style.buttons,
+            Button(Button.Props("nop", "fa-ban", swipeLeft)),
+            Button(Button.Props("refresh", "fa-sync", refresh)),
+            Button(Button.Props("love", "fa-heart", swipeRight))
+          )
         )
       )
   }
 
   object Style extends StyleSheet.Inline {
+
     import dsl._
-    val content = style(
+
+    val content = style()
+
+    val cards = style(
       margin(auto),
-      width(50.%%),
-      padding(10.px)
+      maxWidth(375.px),
+      height(667.px),
+      maxHeight := "calc(100% - 100px)"
     )
 
     val buttons = style(
       display.flex,
-      justifyContent.spaceBetween,
+      justifyContent.spaceAround,
+    )
+
+    val tag = style(
+      lineHeight(25.px),
+      fontSize(25.px),
+      fontWeight._600,
+      border(4.px, solid),
+      borderRadius(4.px),
+      padding(4.px)
+    )
+
+    val fpTag = style(
+      color(c"#ff4848")
+    )
+
+    val fppTag = style(
+      color(c"#01df8a")
     )
   }
 
