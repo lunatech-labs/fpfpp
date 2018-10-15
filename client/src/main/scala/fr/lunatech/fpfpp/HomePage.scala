@@ -1,7 +1,8 @@
 package fr.lunatech.fpfpp
 
-import fr.lunatech.fpfpp.component._
+import fr.lunatech.fpfpp.component.{ Button, Card, _ }
 import fr.lunatech.fpfpp.model.Profile
+import fr.lunatech.fpfpp.utils.ApiClient
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import scalacss.DevDefaults._
@@ -13,16 +14,9 @@ object HomePage {
   def apply(props: Props) = component(props)
 
   val component =
-    ScalaComponent.builder[Props]("HomePage")
-      .initialState(State(Seq(
-        Profile("0", "https://bit.ly/2r0Hj2F"),
-        Profile("1", "https://bit.ly/2REngnn"),
-        Profile("2", "https://bit.ly/2dkeECs"),
-        Profile("3", "https://bit.ly/2r0Hj2F"),
-        Profile("4", "https://bit.ly/2REngnn"),
-        Profile("5", "https://bit.ly/2dkeECs"),
-        Profile("6", "https://bit.ly/2r0Hj2F")
-      )))
+    ScalaComponent
+      .builder[Props]("HomePage")
+      .initialState(State(Seq.empty))
       .renderBackend[Backend]
       .build
 
@@ -32,7 +26,7 @@ object HomePage {
 
   case class Props()
 
-  class Backend($ : BackendScope[Props, State]) {
+  class Backend($: BackendScope[Props, State]) {
 
     val stackRef = Ref.toScalaComponent(CardStack.component)
 
@@ -40,12 +34,31 @@ object HomePage {
       state.copy(profiles = state.profiles.drop(1))
     )
 
-    private def iHaveFear: Callback = Callback { println("I have fear dude !!") } >> pop
-    private def iHaveNotFear: Callback = Callback { println("I have not fear dude !!") } >> pop
-    private def refresh: Callback = Callback { println("Refresh !!") }
+    private def iHaveFear: Callback = Callback {
+      println("I have fear dude !!")
+    } >> pop
+
+    private def iHaveNotFear: Callback = Callback {
+      println("I have not fear dude !!")
+    } >> pop
+
+    private def refresh: Callback = Callback {
+      println("Refresh !!")
+    }
 
     val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
     val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
+
+    def modStateError: Exception => Callback =
+      e => $.modState(_.copy(profiles = Seq.empty))
+
+    def start: Callback =
+      ApiClient.getImages(images =>
+        $.modState(_.copy(profiles = images.zipWithIndex.map {
+          case (img, i) => Profile(i.toString, img)
+        })), modStateError
+      )
+
 
     def render(props: Props, state: State) =
       <.div(
@@ -71,7 +84,6 @@ object HomePage {
         )
       )
   }
-
 
   object Style extends StyleSheet.Inline {
 

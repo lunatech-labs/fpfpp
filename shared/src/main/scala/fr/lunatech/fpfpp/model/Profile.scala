@@ -1,6 +1,11 @@
 package fr.lunatech.fpfpp.model
 
+import fr.lunatech.fpfpp.Image
+
 case class Profile(
   id: String,
-  image: String
+  image: Image
 )
+
+object Image {
+}
