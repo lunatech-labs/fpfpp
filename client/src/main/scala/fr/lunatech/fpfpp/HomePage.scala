@@ -1,12 +1,9 @@
 package fr.lunatech.fpfpp
 
-import fr.lunatech.fpfpp.component.{ Button, Card, CardStack }
+import fr.lunatech.fpfpp.component._
 import fr.lunatech.fpfpp.model.Profile
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.{ BackendScope, Callback, ScalaComponent }
-import org.scalajs.dom
-import org.scalajs.dom.KeyboardEvent
-import org.scalajs.dom.ext.KeyCode
 import scalacss.DevDefaults._
 import scalacss.ScalaCssReact._
 import scalacss.internal.mutable.StyleSheet
@@ -18,13 +15,15 @@ object HomePage {
   val component =
     ScalaComponent.builder[Props]("HomePage")
       .initialState(State(Seq(
-        Profile("https://bit.ly/2r0Hj2F"),
-        Profile("https://bit.ly/2REngnn"),
-        Profile("https://bit.ly/2dkeECs")
+        Profile("0", "https://bit.ly/2r0Hj2F"),
+        Profile("1", "https://bit.ly/2REngnn"),
+        Profile("2", "https://bit.ly/2dkeECs"),
+        Profile("3", "https://bit.ly/2r0Hj2F"),
+        Profile("4", "https://bit.ly/2REngnn"),
+        Profile("5", "https://bit.ly/2dkeECs"),
+        Profile("6", "https://bit.ly/2r0Hj2F")
       )))
       .renderBackend[Backend]
-      .componentDidMount(_.backend.start)
-      .componentWillUnmount(_.backend.dispose)
       .build
 
   case class State(
@@ -35,6 +34,8 @@ object HomePage {
 
   class Backend($ : BackendScope[Props, State]) {
 
+    val stackRef = Ref.toScalaComponent(CardStack.component)
+
     def pop = $.modState(state =>
       state.copy(profiles = state.profiles.drop(1))
     )
@@ -43,34 +44,29 @@ object HomePage {
     private def iHaveNotFear: Callback = Callback { println("I have not fear dude !!") } >> pop
     private def refresh: Callback = Callback { println("Refresh !!") }
 
-    private def onKeyDown(event: KeyboardEvent): Unit = $.props.flatMap {
-      props => event.keyCode match {
-        case KeyCode.Left => iHaveNotFear
-        case KeyCode.Right => iHaveFear
-        case _ => Callback.empty
-      }
-    }.runNow()
-
-    def start: Callback = Callback { dom.window.addEventListener("keydown", onKeyDown) }
-    def dispose: Callback = Callback { dom.window.removeEventListener("keydown", onKeyDown) }
+    val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
+    val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
 
     def render(props: Props, state: State) =
       <.div(
         ^.className := "fpfpp",
         Style.content,
         <.div(
-          ^.className := "fpfpp-buttons",
-          Style.buttons,
-          Button(Button.Props("nop", "fa-ban", iHaveNotFear)),
-          Button(Button.Props("refresh", "fa-sync", refresh)),
-          Button(Button.Props("love", "fa-heart", iHaveFear))
-        ),
-        <.div(
-          ^.className := "fpfpp-cards",
-          CardStack(
+          Style.cards,
+          stackRef.component(
             CardStack.Props(
-              state.profiles.map(profile => Card.Props(profile, iHaveFear, iHaveNotFear))
+              state.profiles.map(profile => profile.id -> Card(Card.Props(profile))),
+              <.span(Style.tag, Style.fpTag, "Fait Peur"),
+              iHaveFear,
+              <.span(Style.tag, Style.fppTag, "Fait Pas Peur"),
+              iHaveNotFear
             )
+          ),
+          <.div(
+            Style.buttons,
+            Button(Button.Props("nop", "fa-ban", swipeLeft)),
+            Button(Button.Props("refresh", "fa-sync", refresh)),
+            Button(Button.Props("love", "fa-heart", swipeRight))
           )
         )
       )
@@ -78,16 +74,38 @@ object HomePage {
 
 
   object Style extends StyleSheet.Inline {
+
     import dsl._
-    val content = style(
+
+    val content = style()
+
+    val cards = style(
       margin(auto),
-      width(50.%%),
-      padding(10.px)
+      maxWidth(375.px),
+      height(667.px),
+      maxHeight := "calc(100% - 100px)"
     )
 
     val buttons = style(
       display.flex,
-      justifyContent.spaceBetween,
+      justifyContent.spaceAround,
+    )
+
+    val tag = style(
+      lineHeight(25.px),
+      fontSize(25.px),
+      fontWeight._600,
+      border(4.px, solid),
+      borderRadius(4.px),
+      padding(4.px)
+    )
+
+    val fpTag = style(
+      color(c"#ff4848")
+    )
+
+    val fppTag = style(
+      color(c"#01df8a")
     )
   }
 
