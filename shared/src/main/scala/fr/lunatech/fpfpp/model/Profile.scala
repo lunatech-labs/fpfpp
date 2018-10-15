@@ -6,6 +6,3 @@ case class Profile(
   id: String,
   image: Image
 )
-
-object Image {
-}

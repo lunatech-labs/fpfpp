@@ -39,7 +39,7 @@ object Card {
 
       <.div(
         Style.card,
-        ^.backgroundImage := s"url(${props.profile.image})"
+        ^.backgroundImage := s"url(${props.profile.image.url})"
       )
     }
   }

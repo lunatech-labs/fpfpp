@@ -18,6 +18,7 @@ object HomePage {
       .builder[Props]("HomePage")
       .initialState(State(Seq.empty))
       .renderBackend[Backend]
+      .componentDidMount(_.backend.start)
       .build
 
   case class State(
