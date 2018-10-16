@@ -15,13 +15,12 @@ object Button {
 
   def apply(props: Props) = component(props)
 
-  case class Props(name: String, icon: String, action: Callback)
+  case class Props(icon: String, action: Callback)
 
   class Backend($: BackendScope[Props, Unit]) {
     def render(props: Props) =
       <.button(
         Style.button,
-        ^.id := props.name,
         ^.className := s"fa ${props.icon}",
         ^.onClick --> props.action
       )
@@ -30,9 +29,7 @@ object Button {
   object Style extends StyleSheet.Inline {
     import dsl._
     val button = style(
-      width(40.px),
-      height(40.px),
-      fontSize(32.px),
+      fontSize(3.em),
       verticalAlign.middle,
       padding(0.px),
       margin(0.px)

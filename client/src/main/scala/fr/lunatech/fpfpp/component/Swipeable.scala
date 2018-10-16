@@ -27,22 +27,21 @@ object Swipeable {
     )
 
     val moveBack = style(
-      transition := "transform 200ms"
+      transitionDelay(150.millis),
+      transitionDuration(500.millis),
+      transitionProperty := "transform"
     )
 
-    val tag = style(
+    val overlay = style(
       position.absolute,
-      top(10.%%)
+      height(100.%%),
+      width(100.%%)
     )
 
-    val leftTag = style(
-      left(10.%%),
-      transform := "rotate(-20deg)"
-    )
-
-    val rightTag = style(
-      right(10.%%),
-      transform := "rotate(20deg)"
+    val fadeIn = style(
+      opacity(1).important,
+      transitionProperty := "opacity",
+      transitionDuration(500.millis)
     )
   }
 
@@ -127,8 +126,8 @@ object Swipeable {
         case _ => Callback.empty
       }
 
-    val swipeLeft = $.modState(_.copy(direction = Some(Direction.Left)), $.props.map(_.swipeLeft.delay(200.millis)).flatten.void)
-    val swipeRight = $.modState(_.copy(direction = Some(Direction.Right)), $.props.map(_.swipeRight.delay(200.millis)).flatten.void)
+    val swipeLeft = $.modState(_.copy(direction = Some(Direction.Left)), $.props.map(_.swipeLeft.delay(300.millis)).flatten.void)
+    val swipeRight = $.modState(_.copy(direction = Some(Direction.Right)), $.props.map(_.swipeRight.delay(300.millis)).flatten.void)
 
     val delta = 200
 
@@ -137,8 +136,8 @@ object Swipeable {
         state <- $.state
         props <- $.props
       } yield direction(state, props) match {
-        case Some(Direction.Left) => props.swipeLeft.delay(200.millis)
-        case Some(Direction.Right) => props.swipeRight.delay(200.millis)
+        case Some(Direction.Left) => props.swipeLeft.delay(300.millis)
+        case Some(Direction.Right) => props.swipeRight.delay(300.millis)
         case None => CallbackTo(Future.successful(()))
       }
       swipe.flatten >> dragEndState
@@ -156,8 +155,9 @@ object Swipeable {
       }
     }
 
-    def render(props: Props, state: State, c: PropsChildren) = {
+    def render(props: Props, state: State, child: PropsChildren) = {
 
+      val atCenter = state.posX == 0 && state.posY == 0
       def translateToString(x: Double, y: Double) = {
         val angle = (x / 9).min(25).max(-25)
         s"translate(${x}px, ${y}px) rotate(${angle}deg) perspective(800px)"
@@ -169,17 +169,19 @@ object Swipeable {
         case None => translateToString(state.posX, state.posY)
       }
 
+      def opacity(n : Int) = ^.opacity := ((n * state.posX).max(0) / delta).min(1).toString
+
       <.div(
         ^.transform := translate,
         Style.swipeable,
-        Style.moveBack.when((state.posX == 0 && state.posY == 0 && state.dragged) || state.direction.nonEmpty),
+        Style.moveBack.when((atCenter && state.dragged) || state.direction.nonEmpty),
         ^.onDragEnd --> handleDragEnd,
         ^.onDragStart ==> handleDragStart,
         ^.onDrag ==> drag,
         ^.draggable := true,
-        <.div(Style.tag, Style.leftTag, props.leftTag, ^.opacity := ((-state.posX).max(0) / delta).min(1).toString),
-        <.div(Style.tag, Style.rightTag, props.rightTag , ^.opacity := (state.posX.max(0) / delta).min(1).toString),
-        c
+        <.div(Style.overlay, Style.fadeIn.when(state.direction.contains(Direction.Left)), props.leftTag, opacity(-1)),
+        <.div(Style.overlay, Style.fadeIn.when(state.direction.contains(Direction.Right)), props.rightTag , opacity(1)),
+        child
       )
     }
   }
