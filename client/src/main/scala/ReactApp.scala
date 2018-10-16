@@ -1,12 +1,13 @@
-import scala.scalajs.js.annotation.JSExport
+import fr.lunatech.fpfpp.AppRouter
 
-import fr.lunatech.fpfpp.HomePage
+import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 
 object ReactApp {
 
   @JSExport
   def main(args: Array[String]): Unit = {
-    HomePage(HomePage.Props()).renderIntoDOM(dom.document.getElementById("app"))
+    val appContent = dom.document.getElementById("app-content")
+    AppRouter.router.mapUnmounted(_.renderIntoDOM(dom.document.body))
   }
 }

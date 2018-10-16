@@ -1,7 +1,7 @@
 package fr.lunatech.fpfpp
 
 import fr.lunatech.fpfpp.component.Swipeable.Direction
-import fr.lunatech.fpfpp.component.{ Button, Card, _ }
+import fr.lunatech.fpfpp.component.{Button, Card, _}
 import fr.lunatech.fpfpp.model.Profile
 import fr.lunatech.fpfpp.utils.ApiClient
 import japgolly.scalajs.react._
@@ -25,8 +25,8 @@ object HomePage {
       .build
 
   case class State(
-    profiles: Seq[Profile],
-    swipe: Option[Direction]
+      profiles: Seq[Profile],
+      swipe: Option[Direction]
   ) {
     def swipeLeft: State = copy(swipe = Some(Direction.Left))
 
@@ -37,21 +37,23 @@ object HomePage {
 
   case class Props()
 
-  class Backend($: BackendScope[Props, State]) {
+  class Backend($ : BackendScope[Props, State]) {
 
     val stackRef = Ref.toScalaComponent(CardStack.component)
 
-    def pop = $.modState(state =>
-      state.copy(profiles = state.profiles.drop(1))
-    )
+    def pop = $.modState(state => state.copy(profiles = state.profiles.drop(1)))
 
-    private def iHaveFear: Callback = Callback {
-      println("I have fear dude !!")
-    } >> pop >> $.modState(_.swipeLeft, $.modState(_.swipeReset).delay(300.millis).void)
+    private def iHaveFear: Callback =
+      Callback {
+        println("I have fear dude !!")
+      } >> pop >> $.modState(_.swipeLeft,
+                             $.modState(_.swipeReset).delay(300.millis).void)
 
-    private def iHaveNotFear: Callback = Callback {
-      println("I have not fear dude !!")
-    } >> pop >> $.modState(_.swipeRight, $.modState(_.swipeReset).delay(300.millis).void)
+    private def iHaveNotFear: Callback =
+      Callback {
+        println("I have not fear dude !!")
+      } >> pop >> $.modState(_.swipeRight,
+                             $.modState(_.swipeReset).delay(300.millis).void)
 
     private def refresh: Callback = start
 
@@ -62,35 +64,54 @@ object HomePage {
       e => $.modState(_.copy(profiles = Seq.empty))
 
     def start: Callback =
-      ApiClient.getImages(images =>
-        $.modState(_.copy(profiles = images.zipWithIndex.map {
-          case (img, i) => Profile(i.toString, img)
-        })), modStateError
-      )
-
+      ApiClient.getImages(
+        images =>
+          $.modState(_.copy(profiles = images.zipWithIndex.map {
+            case (img, i) => Profile(i.toString, img)
+          })),
+        modStateError)
 
     def render(props: Props, state: State) =
       <.div(
         Style.app,
-        <.header(Style.header, <.img(Style.logo, ^.src := "/assets/img/logo.png")),
+        <.header(Style.header,
+                 <.img(Style.logo, ^.src := "/assets/img/logo.png")),
         <.div(
           Style.content,
-
-          state.swipe.map(dir => <.div(Style.swiped, Style.swipedLeft.when(dir == Direction.Left), Style.swipedRight.when(dir == Direction.Right))),
+          state.swipe.map(
+            dir =>
+              <.div(Style.swiped,
+                    Style.swipedLeft.when(dir == Direction.Left),
+                    Style.swipedRight.when(dir == Direction.Right))),
           <.div(
             Style.cards,
             stackRef.component(
               CardStack.Props(
-                state.profiles.map(profile => profile.id -> Card(Card.Props(profile))),
-                CardOverlay(CardOverlay.Props("fa-flask-poison", "#FaitPeur", Style.whiteColor, Style.fp)),
+                state.profiles.map(profile =>
+                  profile.id -> Card(Card.Props(profile))),
+                CardOverlay(
+                  CardOverlay.Props("fa-flask-poison",
+                                    "#FaitPeur",
+                                    Style.whiteColor,
+                                    Style.fp)),
                 iHaveFear,
-                CardOverlay(CardOverlay.Props("fa-flask-potion", "#FaitPasPeur", Style.whiteColor, Style.fpp)),
+                CardOverlay(
+                  CardOverlay.Props("fa-flask-potion",
+                                    "#FaitPasPeur",
+                                    Style.whiteColor,
+                                    Style.fpp)),
                 iHaveNotFear
               )
             ),
-            <.div(Style.button, Style.stickLeftCenter, Button(Button.Props("fa-flask-poison", swipeLeft))),
-            <.div(Style.button, Style.stickBottomCenter, Button(Button.Props("fa-hat-witch", refresh))),
-            <.div(Style.button, Style.stickRightCenter, Button(Button.Props("fa-flask-potion", swipeRight))),
+            <.div(Style.button,
+                  Style.stickLeftCenter,
+                  Button(Button.Props("fa-flask-poison", swipeLeft))),
+            <.div(Style.button,
+                  Style.stickBottomCenter,
+                  Button(Button.Props("fa-hat-witch", refresh))),
+            <.div(Style.button,
+                  Style.stickRightCenter,
+                  Button(Button.Props("fa-flask-potion", swipeRight))),
           )
         )
       )
@@ -146,7 +167,6 @@ object HomePage {
       left(50.%%),
       bottom.`0`,
       transform := "translate(-50%, -50%)"
-
     )
 
     val stickRightCenter = style(
