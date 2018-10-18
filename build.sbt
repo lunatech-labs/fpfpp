@@ -4,25 +4,20 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.7"
 )
 
-lazy val server = (project in file("server"))
-  .enablePlugins(SbtWeb)
+lazy val sharedJvm = shared.jvm
+lazy val sharedJs = shared.js
+
+lazy val shared = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("shared"))
   .settings(commonSettings)
   .settings(
-    scalaJSProjects := Seq(client),
-    pipelineStages in Assets := Seq(scalaJSPipeline),
-    // triggers scalaJSPipeline when using compile or continuous compilation
-    compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http" % "10.1.1",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.17",
-
       "io.circe" %%% "circe-core"    % "0.9.3",
-    ),
-    WebKeys.packagePrefix in Assets := "public/",
-    managedClasspath in Runtime += (packageBin in Assets).value,
+      "io.circe" %%% "circe-generic" % "0.9.3",
+      "io.circe" %%% "circe-parser"  % "0.9.3",
+    )
   )
-  .dependsOn(sharedJvm)
-
 
 lazy val client = (project in file("client"))
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
@@ -65,23 +60,25 @@ lazy val client = (project in file("client"))
   )
   .dependsOn(sharedJs)
 
-
-lazy val sharedJvm = shared.jvm
-lazy val sharedJs = shared.js
-
-lazy val shared = crossProject(JSPlatform, JVMPlatform)
-  // cross plateform, use in Js and Jvs
-  .crossType(CrossType.Pure)
-  .in(file("shared"))
+lazy val server = (project in file("server"))
+  .enablePlugins(SbtWeb)
   .settings(commonSettings)
   .settings(
+    scalaJSProjects := Seq(client),
+    pipelineStages in Assets := Seq(scalaJSPipeline),
+    // triggers scalaJSPipeline when using compile or continuous compilation
+    compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
-      // json parsing
+      "com.typesafe.akka" %% "akka-http" % "10.1.1",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.17",
+
       "io.circe" %%% "circe-core"    % "0.9.3",
-      "io.circe" %%% "circe-generic" % "0.9.3",
-      "io.circe" %%% "circe-parser"  % "0.9.3",
-    )
+    ),
+    WebKeys.packagePrefix in Assets := "public/",
+    managedClasspath in Runtime += (packageBin in Assets).value,
   )
+  .dependsOn(sharedJvm)
+
 
 onLoad in Global := (onLoad in Global).value andThen { s: State =>
   "project server" :: s
