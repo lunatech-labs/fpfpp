@@ -1,5 +1,7 @@
 package fr.lunatech.fpfpp
 
+import scala.concurrent.duration._
+
 import fr.lunatech.fpfpp.component.Swipeable.Direction
 import fr.lunatech.fpfpp.component._
 import fr.lunatech.fpfpp.utils.ApiClient
@@ -9,11 +11,7 @@ import scalacss.DevDefaults._
 import scalacss.ScalaCssReact._
 import scalacss.internal.mutable.StyleSheet
 
-import scala.concurrent.duration._
-
 object HomePage {
-
-  def apply(props: Props) = component(props)
 
   val component =
     ScalaComponent
@@ -23,10 +21,12 @@ object HomePage {
       .componentDidMount(_.backend.start)
       .build
 
+  def apply(props: Props) = component(props)
+
   case class State(
-    images: Seq[Image],
-    swipe: Option[Direction]
-  ) {
+                    images: Seq[Image],
+                    swipe: Option[Direction]
+                  ) {
     def swipeLeft: State = copy(swipe = Some(Direction.Left))
 
     def swipeRight: State = copy(swipe = Some(Direction.Right))
@@ -39,13 +39,57 @@ object HomePage {
   class Backend($: BackendScope[Props, State]) {
 
     val stackRef = Ref.toScalaComponent(CardStack.component)
+    val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
+    val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
 
-    def pop = $.modState(state => state.copy(images = state.images.drop(1)))
+    def render(props: Props, state: State) =
+      <.div(
+        Style.content,
+        state.swipe.map(
+          dir =>
+            <.div(Style.swiped,
+              Style.swipedLeft.when(dir == Direction.Left),
+              Style.swipedRight.when(dir == Direction.Right))),
+        <.div(
+          Style.cards,
+          stackRef.component(
+            CardStack.Props(
+              state.images.map(image => image.id -> Card(Card.Props(image))),
+              CardOverlay(
+                CardOverlay.Props(
+                  "fa-flask-poison",
+                  "#FaitPeur",
+                  Style.whiteColor,
+                  Style.fp
+                )
+              ),
+              iHaveFear,
+              CardOverlay(
+                CardOverlay.Props(
+                  "fa-flask-potion",
+                  "#FaitPasPeur",
+                  Style.whiteColor,
+                  Style.fpp
+                )
+              ),
+              iHaveNotFear
+            )
+          ),
+          <.div(
+            Style.buttons,
+            Button(Button.Props("fa-flask-poison", swipeLeft)),
+            Button(Button.Props("fa-hat-witch", refresh)),
+            Button(Button.Props("fa-flask-potion", swipeRight))
+          )
+        )
+      )
 
     private def iHaveFear: Callback =
       Callback {
         println("I have fear dude !!")
       } >> pop >> $.modState(_.swipeLeft, $.modState(_.swipeReset).delay(300.millis).void)
+
+    def pop = $.modState(state => state.copy(images = state.images.drop(1)))
 
     private def iHaveNotFear: Callback =
       Callback {
@@ -54,82 +98,16 @@ object HomePage {
 
     private def refresh: Callback = start
 
-    val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
-    val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
+    def start: Callback = ApiClient.getImages(images => $.modState(_.copy(images = images)), modStateError)
 
     def modStateError: Exception => Callback =
       e => $.modState(_.copy(images = Seq.empty))
 
-    def start: Callback = ApiClient.getImages(images => $.modState(_.copy(images = images)), modStateError)
-
-    def render(props: Props, state: State) =
-      <.div(
-        Style.app,
-        <.header(Style.header,
-          <.img(Style.logo, ^.src := "/assets/img/logo.png")),
-        <.div(
-          Style.content,
-          state.swipe.map(
-            dir =>
-              <.div(Style.swiped,
-                Style.swipedLeft.when(dir == Direction.Left),
-                Style.swipedRight.when(dir == Direction.Right))),
-          <.div(
-            Style.cards,
-            stackRef.component(
-              CardStack.Props(
-                state.images.map(image => image.id -> Card(Card.Props(image))),
-                CardOverlay(
-                  CardOverlay.Props(
-                    "fa-flask-poison",
-                    "#FaitPeur",
-                    Style.whiteColor,
-                    Style.fp
-                  )
-                ),
-                iHaveFear,
-                CardOverlay(
-                  CardOverlay.Props(
-                    "fa-flask-potion",
-                    "#FaitPasPeur",
-                    Style.whiteColor,
-                    Style.fpp
-                  )
-                ),
-                iHaveNotFear
-              )
-            ),
-            <.div(
-              Style.buttons,
-              Button(Button.Props("fa-flask-poison", swipeLeft)),
-              Button(Button.Props("fa-hat-witch", refresh)),
-              Button(Button.Props("fa-flask-potion", swipeRight))
-            )
-          )
-        )
-      )
   }
 
   object Style extends StyleSheet.Inline {
 
     import dsl._
-
-    val app = style(
-      height(100.vh),
-      background := "linear-gradient(#202020, #111119)"
-    )
-
-    val header = style(
-      backgroundColor(c"#161719"),
-      padding(15.px, 0.px),
-      borderBottom(1.px, solid, c"#131313")
-    )
-
-    val logo = style(
-      height(55.px),
-      display.block,
-      margin.auto
-    )
 
     val content = style(
       position.relative,
