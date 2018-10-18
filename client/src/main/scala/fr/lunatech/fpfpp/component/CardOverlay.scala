@@ -58,5 +58,5 @@ object CardOverlay {
     .renderBackend[Backend]
     .build
 
-  def apply(props: Props) = component(props)
+  def apply = Props.tupled.andThen(component(_))
 }

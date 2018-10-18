@@ -7,7 +7,7 @@ object ReactApp {
 
   @JSExport
   def main(args: Array[String]): Unit = {
-    val appContent = dom.document.getElementById("app-content")
-    AppRouter.router.mapUnmounted(_.renderIntoDOM(dom.document.body))
+    val appContent = dom.document.getElementById("app")
+    AppRouter.router.mapUnmounted(_.renderIntoDOM(appContent))
   }
 }

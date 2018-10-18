@@ -24,9 +24,9 @@ object HomePage {
   def apply(props: Props) = component(props)
 
   case class State(
-                    images: Seq[Image],
-                    swipe: Option[Direction]
-                  ) {
+    images: Seq[Image],
+    swipe: Option[Direction]
+  ) {
     def swipeLeft: State = copy(swipe = Some(Direction.Left))
 
     def swipeRight: State = copy(swipe = Some(Direction.Right))
@@ -39,70 +39,48 @@ object HomePage {
   class Backend($: BackendScope[Props, State]) {
 
     val stackRef = Ref.toScalaComponent(CardStack.component)
+
+    private val pop: Callback = $.modState(state => state.copy(images = state.images.drop(1)))
+
+    private val resetFlash: Callback = $.modState(_.swipeReset).delay(300.millis).void
+
+    private val iHaveFear: Callback =
+      Callback {
+        println("I have fear dude !!")
+      } >> pop >> $.modState(_.swipeLeft, resetFlash)
+
+    private val iHaveNotFear: Callback =
+      Callback {
+        println("I have not fear dude !!")
+      } >> pop >> $.modState(_.swipeRight, resetFlash)
+
+    private def refresh: Callback = start
+
     val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
     val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
+
+    def modStateError: Exception => Callback = e => $.modState(_.copy(images = Seq.empty))
+
+    def start: Callback = ApiClient.getImages(images => $.modState(_.copy(images = images)), modStateError)
 
     def render(props: Props, state: State) =
       <.div(
         Style.content,
-        state.swipe.map(
-          dir =>
-            <.div(Style.swiped,
-              Style.swipedLeft.when(dir == Direction.Left),
-              Style.swipedRight.when(dir == Direction.Right))),
+        state.swipe.map(Flashing(_)),
         <.div(
           Style.cards,
           stackRef.component(
             CardStack.Props(
-              state.images.map(image => image.id -> Card(Card.Props(image))),
-              CardOverlay(
-                CardOverlay.Props(
-                  "fa-flask-poison",
-                  "#FaitPeur",
-                  Style.whiteColor,
-                  Style.fp
-                )
-              ),
+              state.images.map(image => image.id -> Card(image)),
+              CardOverlay("fa-flask-poison", "#FaitPeur", Style.whiteColor, Style.fp),
               iHaveFear,
-              CardOverlay(
-                CardOverlay.Props(
-                  "fa-flask-potion",
-                  "#FaitPasPeur",
-                  Style.whiteColor,
-                  Style.fpp
-                )
-              ),
+              CardOverlay("fa-flask-potion", "#FaitPasPeur", Style.whiteColor, Style.fpp),
               iHaveNotFear
             )
           ),
-          <.div(
-            Style.buttons,
-            Button(Button.Props("fa-flask-poison", swipeLeft)),
-            Button(Button.Props("fa-hat-witch", refresh)),
-            Button(Button.Props("fa-flask-potion", swipeRight))
-          )
+          Controls(Controls.Props(swipeLeft, refresh, swipeRight))
         )
       )
-
-    private def iHaveFear: Callback =
-      Callback {
-        println("I have fear dude !!")
-      } >> pop >> $.modState(_.swipeLeft, $.modState(_.swipeReset).delay(300.millis).void)
-
-    def pop = $.modState(state => state.copy(images = state.images.drop(1)))
-
-    private def iHaveNotFear: Callback =
-      Callback {
-        println("I have not fear dude !!")
-      } >> pop >> $.modState(_.swipeRight, $.modState(_.swipeReset).delay(300.millis).void)
-
-    private def refresh: Callback = start
-
-    def start: Callback = ApiClient.getImages(images => $.modState(_.copy(images = images)), modStateError)
-
-    def modStateError: Exception => Callback =
-      e => $.modState(_.copy(images = Seq.empty))
-
   }
 
   object Style extends StyleSheet.Inline {
@@ -123,39 +101,9 @@ object HomePage {
       paddingTop(25.px)
     )
 
-    val buttons = style(
-      display.flex,
-      justifyContent.spaceAround
-    )
-
     val whiteColor = white
     val fp = rgba(255, 0, 0, 0.5)
     val fpp = rgba(0, 255, 0, 0.5)
-
-    val flash = keyframes(
-      0.%% -> keyframe(opacity(0)),
-      50.%% -> keyframe(opacity(1)),
-      100.%% -> keyframe(opacity(0)),
-    )
-
-    val swiped = style(
-      position.absolute,
-      animationName(flash),
-      animationDuration(150.millis),
-      width(25.%%),
-      height(100.%%),
-      opacity(0)
-    )
-
-    val swipedLeft = style(
-      left.`0`,
-      background := "linear-gradient(to right, rgba(255,0,0,0.5) 0%,rgba(255, 0, 0,0) 100%)"
-    )
-
-    val swipedRight = style(
-      right.`0`,
-      background := "linear-gradient(to left, rgba(0,255,0,0.5) 0%,rgba(0, 255, 0,0) 100%)"
-    )
   }
 
   Style.addToDocument()

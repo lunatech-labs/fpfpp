@@ -27,20 +27,16 @@ object Card {
 
   Style.addToDocument()
 
-  case class Props(
-    image: Image
-  )
-
   val component = ScalaComponent
-    .builder[Props]("Card")
-    .render_P { props =>
+    .builder[Image]("Card")
+    .render { $ =>
       <.div(
         Style.card,
-        ^.backgroundImage := s"url(${props.image.url})"
+        ^.backgroundImage := s"url(${$.props.url})"
       )
     }
     .build
 
-  def apply(props: Props): VdomNode = component(props)
+  def apply(props: Image): VdomNode = component(props)
 
 }
