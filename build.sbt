@@ -14,14 +14,9 @@ lazy val server = (project in file("server"))
     compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http" % "10.1.1",
-      "com.typesafe.akka" %% "akka-actor" % "2.5.17",
       "com.typesafe.akka" %% "akka-stream" % "2.5.17",
-      //to link scalajs output to HTML templating engines
-      "com.vmunier" %% "scalajs-scripts" % "1.1.2",
-      //provides JSON (un)marshalling support
-      "de.heikoseeberger" %% "akka-http-circe" % "1.21.0",
-      "org.scalaj" %% "scalaj-http" % "2.4.1",
-      "com.typesafe.play" %% "play-json" % "2.6.10",
+
+      "io.circe" %%% "circe-core"    % "0.9.3",
     ),
     WebKeys.packagePrefix in Assets := "public/",
     managedClasspath in Runtime += (packageBin in Assets).value,

@@ -15,8 +15,8 @@ object CardStack {
     val stack = style(
       position.relative,
       height(100.%%),
-      maxHeight := "calc(100% - 60px)",
-      marginBottom(15.px)
+      maxHeight := "calc(100% - 85px)",
+      marginBottom(25.px)
     )
 
     val stackCard = style(

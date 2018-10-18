@@ -1,13 +1,22 @@
 package fr.lunatech.fpfpp
 
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import scalaj.http._
+import akka.http.scaladsl.unmarshalling.Unmarshaller.stringUnmarshaller
+import io.circe.parser.decode
+import io.circe.syntax._
+import io.circe.{Decoder, HCursor}
+
+import scala.concurrent.ExecutionContext
+import scala.util._
 
 class WebService extends Directives {
 
-  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import WebServer._
+
+  implicit val ec: ExecutionContext = system.dispatcher
 
   val route = {
     pathSingleSlash {
@@ -22,32 +31,29 @@ class WebService extends Directives {
   } ~
     path("images") {
       get {
-        complete(buildImages)
+        onComplete(buildImages) {
+          case Success(value) => complete(value.asJson.noSpaces)
+          case _ => complete("Error")
+        }
       }
     }
 
   private def buildImages = {
-    val response = Http("https://api.unsplash.com/search/photos")
-      .header("content-type", "application/json")
-      .header(
-        "Authorization",
-        "Client-ID 035a955759a49d0ca13bd8d380f89abfe303e1a83dd40eea939151e4e0f6c697")
-      .param("query", "halloween")
-      .asString
-    val json = Json.parse(response.body)
-    val imagesJson = json("results")
+    implicit val imageDecoder: Decoder[Image] = (c: HCursor) => {
+      for {
+        id <- c.downField("id").as[String]
+        src <- c.downField("urls").downField("regular").as[String]
+      } yield Image(id, src)
+    }
 
-    val images = imagesJson
-      .validate[Seq[Image]]
-      .fold(err => {
-        println(err)
-        Seq.empty
-      }, valid => valid)
-    images
+    val resultDecoder: Decoder[Seq[Image]] = (c: HCursor) => {
+      c.downField("results").as[Seq[Image]]
+    }
+
+    Http().singleRequest(
+      HttpRequest(uri = "https://api.unsplash.com/search/photos?query=halloween")
+        .withHeaders(RawHeader("Authorization", "Client-ID 035a955759a49d0ca13bd8d380f89abfe303e1a83dd40eea939151e4e0f6c697"))
+    ).flatMap(res => stringUnmarshaller(res.entity))
+      .map(json => decode[Seq[Image]](json)(resultDecoder).right.toSeq.flatten)
   }
-
-  implicit val reads: Reads[Image] = (
-    (JsPath \ "id").read[String] and
-      (JsPath \ "urls" \ "regular").read[String]
-  )(Image.apply _)
 }

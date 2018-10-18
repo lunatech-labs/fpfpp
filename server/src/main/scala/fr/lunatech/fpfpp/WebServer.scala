@@ -5,10 +5,11 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 
 object WebServer {
-  def main(args: Array[String]) {
-    implicit val system: ActorSystem = ActorSystem("server-system")
-    implicit val materializer: ActorMaterializer = ActorMaterializer()
 
+  implicit val system: ActorSystem = ActorSystem("server-system")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+
+  def main(args: Array[String]) {
     val host = "localhost"
     val port = 9000
 

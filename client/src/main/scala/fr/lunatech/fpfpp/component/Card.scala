@@ -1,8 +1,7 @@
 package fr.lunatech.fpfpp.component
 
-import fr.lunatech.fpfpp.model.Profile
+import fr.lunatech.fpfpp.Image
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.OnUnmount
 import japgolly.scalajs.react.vdom.html_<^._
 import scalacss.DevDefaults._
 import scalacss.ScalaCssReact._
@@ -29,24 +28,17 @@ object Card {
   Style.addToDocument()
 
   case class Props(
-    profile: Profile
+    image: Image
   )
-
-
-  class Backend($: BackendScope[Props, Unit]) extends OnUnmount {
-
-    def render(props: Props) = {
-
-      <.div(
-        Style.card,
-        ^.backgroundImage := s"url(${props.profile.image.url})"
-      )
-    }
-  }
 
   val component = ScalaComponent
     .builder[Props]("Card")
-    .renderBackend[Backend]
+    .render_P { props =>
+      <.div(
+        Style.card,
+        ^.backgroundImage := s"url(${props.image.url})"
+      )
+    }
     .build
 
   def apply(props: Props): VdomNode = component(props)
