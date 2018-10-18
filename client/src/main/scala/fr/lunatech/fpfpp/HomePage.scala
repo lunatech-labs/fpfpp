@@ -72,9 +72,9 @@ object HomePage {
           stackRef.component(
             CardStack.Props(
               state.images.map(image => image.id -> Card(image)),
-              CardOverlay("fa-flask-poison", "#FaitPeur", Style.whiteColor, Style.fp),
+              CardOverlay.apply("fa-flask-poison", "#FaitPeur", Style.whiteColor, Style.fp),
               iHaveFear,
-              CardOverlay("fa-flask-potion", "#FaitPasPeur", Style.whiteColor, Style.fpp),
+              CardOverlay.apply("fa-flask-potion", "#FaitPasPeur", Style.whiteColor, Style.fpp),
               iHaveNotFear
             )
           ),
