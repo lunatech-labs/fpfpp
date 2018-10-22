@@ -13,10 +13,10 @@ import scalacss.internal.mutable.StyleSheet
 
 object HomePage {
 
-  val component =
+  def component =
     ScalaComponent
       .builder[Props]("HomePage")
-      .initialState(State(Seq.empty, None))
+      .initialState(State(Seq.empty, 0, None, Seq.empty))
       .renderBackend[Backend]
       .componentDidMount(_.backend.start)
       .build
@@ -24,46 +24,42 @@ object HomePage {
   def apply(props: Props) = component(props)
 
   case class State(
-    images: Seq[Image],
-    swipe: Option[Direction]
-  ) {
-    def swipeLeft: State = copy(swipe = Some(Direction.Left))
+                    images: Seq[Image],
+                    nbInitialImages: Int,
+                    swipe: Option[Direction],
+                    history: Seq[Direction]
+                  ) {
+    def swipeLeft: State = copy(swipe = Some(Direction.Left), history = Direction.Left +: history)
 
-    def swipeRight: State = copy(swipe = Some(Direction.Right))
+    def swipeRight: State = copy(swipe = Some(Direction.Right), history = Direction.Right +: history)
 
     def swipeReset: State = copy(swipe = None)
   }
 
-  case class Props()
+  case class Props(apiClient: ApiClient)
 
   class Backend($: BackendScope[Props, State]) {
 
     val stackRef = Ref.toScalaComponent(CardStack.component)
+
+    val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
+
+    val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
 
     private val pop: Callback = $.modState(state => state.copy(images = state.images.drop(1)))
 
     private val resetFlash: Callback = $.modState(_.swipeReset).delay(300.millis).void
 
     private val iHaveFear: Callback =
-      Callback {
-        println("I have fear dude !!")
-      } >> pop >> $.modState(_.swipeLeft, resetFlash)
+      Callback {println("I have fear dude !!")} >> pop >> $.modState(_.swipeLeft, resetFlash)
 
     private val iHaveNotFear: Callback =
-      Callback {
-        println("I have not fear dude !!")
-      } >> pop >> $.modState(_.swipeRight, resetFlash)
+      Callback {println("I have not fear dude !!")} >> pop >> $.modState(_.swipeRight, resetFlash)
 
-    private def refresh: Callback = start
+    private val refresh: Callback =
+      Callback {println("Again dude !!")} >> start
 
-    val swipeLeft = stackRef.get.flatMap(_.backend.swipeLeft).void
-    val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
-
-    def modStateError: Exception => Callback = e => $.modState(_.copy(images = Seq.empty))
-
-    def start: Callback = ApiClient.getImages(images => $.modState(_.copy(images = images)), modStateError)
-
-    def render(props: Props, state: State) =
+    def render(props: Props, state: State) = {
       <.div(
         Style.content,
         state.swipe.map(Flashing(_)),
@@ -78,9 +74,33 @@ object HomePage {
               iHaveNotFear
             )
           ),
-          Controls(Controls.Props(swipeLeft, refresh, swipeRight))
+//          Controls(Controls.Props(swipeLeft, refresh, swipeRight)),
+          Controls(Controls.Props(iHaveFear, refresh, iHaveNotFear)),
+          <.div(
+            ^.visibility := "hidden",
+            <.span(<.span("# FaitPeur"), <.span(^.id := "FaitPeur", state.history.count(_ == Direction.Left))),
+            <.span(<.span("# FaitPasPeur"), <.span(^.id := "FaitPasPeur", state.history.count(_ == Direction.Right))),
+            <.span(<.span("# remaining images"), <.span(^.id := "remainingImages", state.images.size)),
+            <.span(<.span("# total images"), <.span(^.id := "totalImages", state.nbInitialImages))
+          )
         )
       )
+    }
+
+    def start: Callback = $.props.flatMap { props =>
+      props.apiClient.getImages(images => {
+        $.modState(_.copy(
+          images = images,
+          nbInitialImages = images.size,
+          swipe = None,
+          history = Seq.empty
+        ))
+      },
+        modStateError
+      )
+    }
+
+    def modStateError: Exception => Callback = e => $.modState(_.copy(images = Seq.empty))
   }
 
   object Style extends StyleSheet.Inline {

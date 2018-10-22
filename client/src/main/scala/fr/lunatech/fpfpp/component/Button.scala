@@ -15,13 +15,14 @@ object Button {
 
   def apply(props: Props) = component(props)
 
-  case class Props(icon: String, action: Callback, style: StyleA = Style.primary)
+  case class Props(icon: String, action: Callback, style: StyleA = Style.primary, id: String)
 
   class Backend($: BackendScope[Props, Unit]) {
     def render(props: Props) = {
       <.button(
         Style.button,
         props.style,
+        ^.id := props.id,
         ^.className := s"fa ${props.icon}",
         ^.onClick --> props.action
       )

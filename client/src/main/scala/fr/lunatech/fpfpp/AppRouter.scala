@@ -1,5 +1,6 @@
 package fr.lunatech.fpfpp
 
+import fr.lunatech.fpfpp.utils.ApiClient
 import japgolly.scalajs.react.extra.router._
 import japgolly.scalajs.react.vdom.html_<^._
 import scalacss.DevDefaults._
@@ -17,7 +18,7 @@ object AppRouter {
     val page2 = "#page2"
 
     (trimSlashes
-      | staticRoute(root, Home) ~> render(HomePage(HomePage.Props()))
+      | staticRoute(root, Home) ~> render(HomePage(HomePage.Props(new ApiClient {})))
       | staticRoute(page2, Page2) ~> render(Page(Page.Props(2))))
       .notFound(redirectToPage(Home)(Redirect.Replace))
       .renderWith(layout)

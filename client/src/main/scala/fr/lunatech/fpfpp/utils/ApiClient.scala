@@ -6,7 +6,7 @@ import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.Ajax
 import japgolly.scalajs.react.extra.router.BaseUrl
 
-object ApiClient {
+trait ApiClient {
   private val baseUrl = BaseUrl.fromWindowOrigin.value
 
   def getImages(success: Seq[Image] => Callback,

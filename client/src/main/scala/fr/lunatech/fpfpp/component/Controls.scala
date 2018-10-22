@@ -46,13 +46,20 @@ object Controls {
   val component = ScalaComponent.builder[Props]("Controls")
     .render($ =>
       <.div(
-        <.div(Style.button, Style.stickLeftCenter, Button(Button.Props("fa-flask-poison", $.props.swipeLeft))),
-        <.div(Style.button,
+        <.div(
+          Style.button,
+          Style.stickLeftCenter,
+          Button(Button.Props("fa-flask-poison", $.props.swipeLeft, id = "swipeLeft"))
+        ),
+        <.div(
+          Style.button,
           Style.stickBottomCenter,
-          Button(Button.Props("fa-hat-witch", $.props.refresh, Button.Style.secondary))),
-        <.div(Style.button,
+          Button(Button.Props("fa-hat-witch", $.props.refresh, Button.Style.secondary, id = "refresh"))),
+        <.div(
+          Style.button,
           Style.stickRightCenter,
-          Button(Button.Props("fa-flask-potion", $.props.swipeRight))),
+          Button(Button.Props("fa-flask-potion", $.props.swipeRight, id = "swipeRight"))
+        ),
       )
     )
     .build
