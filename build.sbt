@@ -86,6 +86,8 @@ lazy val client = (project in file("client"))
         minified  "umd/react-dom-test-utils.production.min.js"
         dependsOn "umd/react-dom.development.js"
         commonJSName "ReactTestUtils"
+        commonJSName "ReactDOMServer",
+      "org.webjars.bower" % "konami-js" % "1.4.6" / "konami.js"
     )
   )
   .dependsOn(sharedJs)

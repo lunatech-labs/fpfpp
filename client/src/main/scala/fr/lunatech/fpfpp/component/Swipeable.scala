@@ -116,8 +116,8 @@ object Swipeable {
 
     def onKeyDown(event: KeyboardEvent): Callback =
       event.keyCode match {
-        case KeyCode.Left => swipeLeft
-        case KeyCode.Right => swipeRight
+        case KeyCode.Left if event.shiftKey => swipeLeft
+        case KeyCode.Right if event.shiftKey => swipeRight
         case _ => Callback.empty
       }
 

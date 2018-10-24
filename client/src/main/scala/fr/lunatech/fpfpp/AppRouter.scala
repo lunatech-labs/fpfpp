@@ -1,5 +1,6 @@
 package fr.lunatech.fpfpp
 
+import fr.lunatech.fpfpp.component.Footer
 import fr.lunatech.fpfpp.utils.ApiClient
 import japgolly.scalajs.react.extra.router._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -31,7 +32,8 @@ object AppRouter {
         Style.header,
         <.img(Style.logo, ^.src := "/assets/img/logo.png")
       ),
-      r.render()
+      r.render(),
+      Footer()
     )
   }
 
