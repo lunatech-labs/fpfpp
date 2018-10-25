@@ -70,6 +70,7 @@ object HomePage {
       <.div(
         Style.content,
         state.swipe.map(Flashing(_)),
+        BluredBackgound("assets/img/images/29.png"),
         <.div(
           Style.cards,
           stackRef.component(

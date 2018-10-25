@@ -39,19 +39,25 @@ object Button {
       borderRadius(50.%%),
       boxShadow := "0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12)",
       cursor.pointer,
+      backgroundColor(c"#e45d00"),
+      border.none,
+      color.white,
       &.focus(
         outline.none
+      ),
+      &.hover(
+        backgroundColor(c"#fc6700")
       )
     )
 
     val primary = style(
-      fontSize(3.em),
+      fontSize(2.em),
       height(70.px),
       width(70.px)
     )
 
     val secondary = style(
-      fontSize(2.em),
+      fontSize(1.5.em),
       height(56.px),
       width(56.px)
     )

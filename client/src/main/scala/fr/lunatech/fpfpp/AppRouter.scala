@@ -2,7 +2,7 @@ package fr.lunatech.fpfpp
 
 import java.time.Year
 
-import fr.lunatech.fpfpp.component.Footer
+import fr.lunatech.fpfpp.component.{ Footer, Spider }
 import fr.lunatech.fpfpp.css.{AppStyle, HeaderStyle, SpiderStyle}
 import fr.lunatech.fpfpp.utils.ApiClient
 import japgolly.scalajs.react.extra.router._
@@ -27,8 +27,6 @@ object AppRouter {
       .renderWith(layout)
   }
 
-  def legs(sideStyle: StyleA) = List.fill(4)(<.span(SpiderStyle.leg, sideStyle))
-
   def layout(c: RouterCtl[AppPage], r: Resolution[AppPage]): VdomElement = {
     <.div(
       AppStyle.app,
@@ -37,18 +35,13 @@ object AppRouter {
         <.img(HeaderStyle.logo, ^.src := "/assets/img/logo.png"),
         <.p(HeaderStyle.h1, "Happy Halloween !")
       ),
-      <.div(
-        SpiderStyle.spider,
-        <.div(SpiderStyle.eye, SpiderStyle.eyeLeft),
-        <.div(SpiderStyle.eye, SpiderStyle.eyeRight),
-        TagMod(legs(SpiderStyle.legLeft): _*),
-        TagMod(legs(SpiderStyle.legRight): _*)
-      ),
+      Spider(SpiderStyle.spiderTopRight),
+      r.render(),
       <.img(SpiderStyle.spiderwebCornerRight,
             ^.src := "/assets/img/spiderweb-corner-right.png"),
       <.div(AppStyle.appContent, r.render()),
-      <.img(SpiderStyle.spiderwebCornerLeft,
-            ^.src := "/assets/img/spiderweb-corner-right.png"),
+      <.img(SpiderStyle.spiderwebCornerLeft, ^.src := "/assets/img/spiderweb-corner-right.png"),
+      Spider(SpiderStyle.spiderBottomLeft),
       Footer()
     )
   }

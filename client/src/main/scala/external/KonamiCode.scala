@@ -11,6 +11,7 @@ object KonamiCode extends js.Function1[js.Function1[Unit, Unit], Konami] {
 
 }
 
+@js.native
 trait Konami extends js.Object {
   def load(): Unit = js.native
 }

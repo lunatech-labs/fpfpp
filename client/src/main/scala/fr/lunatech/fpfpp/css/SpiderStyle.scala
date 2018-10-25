@@ -28,23 +28,34 @@ object SpiderStyle extends StyleSheet.Inline {
     transform := "rotate(-180deg)"
   )
 
+  val spiderAppear = keyframes(
+    0.%% -> keyframe(left(-30.px), bottom(-30.px)),
+    50.%% -> keyframe(left(75.px), bottom(75.px)),
+    100.%% -> keyframe(left(-30.px), bottom(-30.px))
+  )
+
   val spiderMove = keyframes(
     0.%% -> keyframe(marginTop(330.px)),
     50.%% -> keyframe(marginTop(430.px)),
     100.%% -> keyframe(marginTop(330.px))
   )
 
-  val spider = style(
-    position.absolute,
-    height(40.px),
-    width(50.px),
-    borderRadius(50.%%),
+  val redLunatech = c"#e71b1c"
+
+  val spiderBottomLeft = style(
+    transform := "rotate(230deg)",
+    left(15.px),
+    bottom(15.px),
+    animationName(spiderAppear),
+    animationDuration(9.second),
+    animationTimingFunction.cubicBezier(.4, 0, 0.2, 1)
+  )
+
+  val spiderTopRight = style(
     marginTop(210.px),
-    background := "#110D04",
     right(5.%%),
     animationName(spiderMove),
     animationDuration(4.second),
-    animationIterationCount.infinite,
     &.before(
       position.absolute,
       content := "''",
@@ -54,6 +65,17 @@ object SpiderStyle extends StyleSheet.Inline {
       top(-600.px),
       height(600.px)
     )
+  )
+
+  val spider = style(
+    position.absolute,
+    height(40.px),
+    width(50.px),
+    borderRadius(50.%%),
+    backgroundColor(redLunatech),
+    animationIterationCount.infinite,
+    zIndex(1),
+    boxShadow := "0px 0px 16px 0px #101010, inset 0px 0px 6px 0px #101010"
   )
 
   val eye = style(
@@ -99,11 +121,11 @@ object SpiderStyle extends StyleSheet.Inline {
     top(6.px),
     height(12.px),
     width(14.px),
-    borderTop := "2px solid #110D04",
-    borderRight := "1px solid transparent",
-    borderBottom := "1px solid transparent",
+    borderTop(2.px, solid, redLunatech),
+    borderRight(1.px, solid, transparent),
+    borderBottom(1.px, solid, transparent),
     transform := transformLeg(36, -20),
-    borderLeft := "2px solid #110D04",
+    borderLeft(2.px, solid, redLunatech),
     borderRadius := "60% 0 0 0",
     animationName(legsWriggleLeft),
     animationDuration(1.second),
