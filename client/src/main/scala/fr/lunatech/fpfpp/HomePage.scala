@@ -1,7 +1,6 @@
 package fr.lunatech.fpfpp
 
 import scala.concurrent.duration._
-
 import fr.lunatech.fpfpp.component.Swipeable.Direction
 import fr.lunatech.fpfpp.component._
 import fr.lunatech.fpfpp.utils.ApiClient
@@ -24,21 +23,23 @@ object HomePage {
   def apply(props: Props) = component(props)
 
   case class State(
-                    images: Seq[Image],
-                    nbInitialImages: Int,
-                    swipe: Option[Direction],
-                    history: Seq[Direction]
-                  ) {
-    def swipeLeft: State = copy(swipe = Some(Direction.Left), history = Direction.Left +: history)
+      images: Seq[Image],
+      nbInitialImages: Int,
+      swipe: Option[Direction],
+      history: Seq[Direction]
+  ) {
+    def swipeLeft: State =
+      copy(swipe = Some(Direction.Left), history = Direction.Left +: history)
 
-    def swipeRight: State = copy(swipe = Some(Direction.Right), history = Direction.Right +: history)
+    def swipeRight: State =
+      copy(swipe = Some(Direction.Right), history = Direction.Right +: history)
 
     def swipeReset: State = copy(swipe = None)
   }
 
   case class Props(apiClient: ApiClient)
 
-  class Backend($: BackendScope[Props, State]) {
+  class Backend($ : BackendScope[Props, State]) {
 
     val stackRef = Ref.toScalaComponent(CardStack.component)
 
@@ -46,18 +47,24 @@ object HomePage {
 
     val swipeRight = stackRef.get.flatMap(_.backend.swipeRight).void
 
-    private val pop: Callback = $.modState(state => state.copy(images = state.images.drop(1)))
+    private val pop: Callback =
+      $.modState(state => state.copy(images = state.images.drop(1)))
 
-    private val resetFlash: Callback = $.modState(_.swipeReset).delay(300.millis).void
+    private val resetFlash: Callback =
+      $.modState(_.swipeReset).delay(300.millis).void
 
     private val iHaveFear: Callback =
-      Callback {println("I have fear dude !!")} >> pop >> $.modState(_.swipeLeft, resetFlash)
+      Callback { println("I have fear dude !!") } >> pop >> $.modState(
+        _.swipeLeft,
+        resetFlash)
 
     private val iHaveNotFear: Callback =
-      Callback {println("I have not fear dude !!")} >> pop >> $.modState(_.swipeRight, resetFlash)
+      Callback { println("I have not fear dude !!") } >> pop >> $.modState(
+        _.swipeRight,
+        resetFlash)
 
     private val refresh: Callback =
-      Callback {println("Again dude !!")} >> start
+      Callback { println("Again dude !!") } >> start
 
     def render(props: Props, state: State) = {
       <.div(
@@ -68,9 +75,15 @@ object HomePage {
           stackRef.component(
             CardStack.Props(
               state.images.map(image => image.id -> Card(image)),
-              CardOverlay.apply("fa-flask-poison", "#FaitPeur", Style.whiteColor, Style.fp),
+              CardOverlay.apply("fa-flask-poison",
+                                "#FaitPeur",
+                                Style.whiteColor,
+                                Style.fp),
               iHaveFear,
-              CardOverlay.apply("fa-flask-potion", "#FaitPasPeur", Style.whiteColor, Style.fpp),
+              CardOverlay.apply("fa-flask-potion",
+                                "#FaitPasPeur",
+                                Style.whiteColor,
+                                Style.fpp),
               iHaveNotFear
             )
           ),
@@ -78,10 +91,16 @@ object HomePage {
           Controls(Controls.Props(iHaveFear, refresh, iHaveNotFear)),
           <.div(
             ^.visibility := "hidden",
-            <.span(<.span("# FaitPeur"), <.span(^.id := "FaitPeur", state.history.count(_ == Direction.Left))),
-            <.span(<.span("# FaitPasPeur"), <.span(^.id := "FaitPasPeur", state.history.count(_ == Direction.Right))),
-            <.span(<.span("# remaining images"), <.span(^.id := "remainingImages", state.images.size)),
-            <.span(<.span("# total images"), <.span(^.id := "totalImages", state.nbInitialImages))
+            <.span(<.span("# FaitPeur"),
+                   <.span(^.id := "FaitPeur",
+                          state.history.count(_ == Direction.Left))),
+            <.span(<.span("# FaitPasPeur"),
+                   <.span(^.id := "FaitPasPeur",
+                          state.history.count(_ == Direction.Right))),
+            <.span(<.span("# remaining images"),
+                   <.span(^.id := "remainingImages", state.images.size)),
+            <.span(<.span("# total images"),
+                   <.span(^.id := "totalImages", state.nbInitialImages))
           )
         )
       )
@@ -89,18 +108,18 @@ object HomePage {
 
     def start: Callback = $.props.flatMap { props =>
       props.apiClient.getImages(images => {
-        $.modState(_.copy(
-          images = images,
-          nbInitialImages = images.size,
-          swipe = None,
-          history = Seq.empty
-        ))
-      },
-        modStateError
-      )
+        $.modState(
+          _.copy(
+            images = images,
+            nbInitialImages = images.size,
+            swipe = None,
+            history = Seq.empty
+          ))
+      }, modStateError)
     }
 
-    def modStateError: Exception => Callback = e => $.modState(_.copy(images = Seq.empty))
+    def modStateError: Exception => Callback =
+      e => $.modState(_.copy(images = Seq.empty))
   }
 
   object Style extends StyleSheet.Inline {

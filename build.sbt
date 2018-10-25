@@ -37,9 +37,6 @@ lazy val client = (project in file("client"))
       "org.webjars.npm" % "js-tokens" % "3.0.2",
       "org.webjars.npm" % "phantomjs" % "2.1.7",
     ),
-    libraryDependencies ++= Seq(
-      "com.lihaoyi"                   %%% "utest"     % "0.6.5"     % Test,
-      "com.github.japgolly.microlibs" %%% "test-util" % "1.17" % Test),
     testFrameworks += new TestFramework("utest.runner.Framework"),
     libraryDependencies ++= Seq(
       //provides a statically typed interface to the DOM such that it can be called from Scala
@@ -51,10 +48,11 @@ lazy val client = (project in file("client"))
       "com.github.japgolly.scalacss" %%% "core" % "0.5.5",
       // react integration
       "com.github.japgolly.scalacss" %%% "ext-react" % "0.5.5",
+
       "org.scalatest" %% "scalatest" % "3.0.5" % Test,
 
+      "com.lihaoyi"                   %%% "utest"     % "0.6.5"     % Test,
       "com.github.japgolly.scalajs-react" %%% "test" % "1.3.1" % Test,
-
       "com.github.japgolly.test-state" %%% "core"              % "2.2.4" % Test,
       "com.github.japgolly.test-state" %%% "dom-zipper"        % "2.2.4" % Test,
       "com.github.japgolly.test-state" %%% "dom-zipper-sizzle" % "2.2.4" % Test,
@@ -85,8 +83,7 @@ lazy val client = (project in file("client"))
         /         "umd/react-dom-test-utils.development.js"
         minified  "umd/react-dom-test-utils.production.min.js"
         dependsOn "umd/react-dom.development.js"
-        commonJSName "ReactTestUtils"
-        commonJSName "ReactDOMServer",
+        commonJSName "ReactTestUtils",
       "org.webjars.bower" % "konami-js" % "1.4.6" / "konami.js"
     )
   )

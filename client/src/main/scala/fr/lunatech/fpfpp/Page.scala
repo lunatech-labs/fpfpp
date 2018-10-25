@@ -1,25 +1,30 @@
 package fr.lunatech.fpfpp
 
+import java.time.Year
+
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
 object Page {
 
+//  def apply(props: Props) = component(props)
+
   def apply(props: Props) = component(props)
 
   val component =
     ScalaComponent
-      .builder[Props]("Page2")
-      .renderBackend[Backend]
+      .builder[Props]("Page")
+      .render_P(content)
       .build
 
   case class Props(
-      number: Int
+      year: String
   )
 
-  class Backend($ : BackendScope[Props, _]) {
+  def content(props: Props) =
+    <.div(<.img(^.src := "pumpkin.png"),
+          <.input.submit(
+            ^.value := "🎃",
+            ^.onClick --> Callback.alert(s"Happy Halloween ${props.year}!")))
 
-    def render(props: Props) =
-      <.div(s"Je suis la page ${props.number}")
-  }
 }

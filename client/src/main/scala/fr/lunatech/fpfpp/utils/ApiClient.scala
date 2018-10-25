@@ -26,3 +26,5 @@ trait ApiClient {
       }
     }.asCallback
 }
+
+object ApiClient extends ApiClient
