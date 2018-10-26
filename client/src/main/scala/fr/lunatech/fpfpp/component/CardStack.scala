@@ -1,5 +1,6 @@
 package fr.lunatech.fpfpp.component
 
+import fr.lunatech.fpfpp.Image
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import scalacss.DevDefaults._
@@ -42,11 +43,6 @@ object CardStack {
 
   class Backend($: BackendScope[Props, Unit]) {
 
-    val swipeableRef = Ref.toScalaComponent(Swipeable.component)
-
-    val swipeLeft = swipeableRef.get.flatMap(_.backend.swipeLeft)
-    val swipeRight = swipeableRef.get.flatMap(_.backend.swipeRight)
-
     val stackSize = 5
 
     def renderCard: (((String, VdomNode), Int)) => VdomNode = {
@@ -65,11 +61,12 @@ object CardStack {
       <.div(Style.stack,
         stackPart.zipWithIndex match {
           case ((id, head), 0) :: tail =>
-            val swipe = swipeableRef.component(Swipeable.Props(p.leftTag, p.swipeLeft, p.rightTag, p.swipeRight))(head)
+            val swipe = Swipeable(Swipeable.Props(p.leftTag, p.swipeLeft, p.rightTag, p.swipeRight))(head)
             val swipeable = renderCard(id -> swipe, 0)
             val res = swipeable +: tail.map(renderCard)
-            TagMod(res: _*)
-          case _ => <.div("empty")
+            res.toVdomArray
+          case _ =>
+            Card(Image("over", "assets/img/over.gif"))
         }
       )
     }

@@ -12,6 +12,8 @@ import scala.concurrent.duration._
 
 object Footer {
 
+  val animationTime: FiniteDuration = 2000.millis
+
   object Style extends StyleSheet.Inline {
 
     import dsl._
@@ -61,7 +63,7 @@ object Footer {
 
   class Backend($: BackendScope[Unit, State]) {
 
-    val audioRef = Ref[HTMLAudioElement]
+    private val audioRef = Ref[HTMLAudioElement]
 
     val audioPath: String = "assets/img/raptor.mp3"
     val imagePath: String = "assets/img/raptor.png"
@@ -73,7 +75,6 @@ object Footer {
       }.toJsFn1
 
       KonamiCode(go)
-
     }
 
     def render(state: State) = {
@@ -91,6 +92,4 @@ object Footer {
       )
     }
   }
-
-  val animationTime: FiniteDuration = 2000.millis
 }

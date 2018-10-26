@@ -121,9 +121,15 @@ object Swipeable {
         case _ => Callback.empty
       }
 
-    val swipeLeft = $.modState(_.copy(direction = Some(Direction.Left)), $.props.map(_.swipeLeft/*.delay(300.millis)*/).flatten.void)
-    val swipeRight = $.modState(_.copy(direction = Some(Direction.Right)), $.props.map(_.swipeRight/*.delay(300.millis)*/).flatten.void)
+    private def swipe(direction: Direction, swipeCallback: Props => Callback) = {
+      $.modState(
+        _.copy(direction = Some(direction)),
+        $.props.flatMap(swipeCallback(_).delay(300.millis)).void
+      )
+    }
 
+    val swipeLeft: Callback = swipe(Direction.Left, _.swipeLeft)
+    val swipeRight: Callback = swipe(Direction.Right, _.swipeRight)
     val delta = 200
 
     def handleDragEnd: Callback = {

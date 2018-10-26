@@ -38,6 +38,7 @@ object Controls {
   Style.addToDocument()
 
   case class Props(
+    hasElement: Boolean,
     swipeLeft: Callback,
     refresh: Callback,
     swipeRight: Callback
@@ -50,16 +51,17 @@ object Controls {
           Style.button,
           Style.stickLeftCenter,
           Button(Button.Props("fa-flask-poison", $.props.swipeLeft, id = "swipeLeft"))
-        ),
+        ).when($.props.hasElement),
         <.div(
           Style.button,
           Style.stickBottomCenter,
-          Button(Button.Props("fa-hat-witch", $.props.refresh, Button.Style.secondary, id = "refresh"))),
+          Button(Button.Props("fa-hat-witch", $.props.refresh, Button.Style.secondary, id = "refresh"))
+        ),
         <.div(
           Style.button,
           Style.stickRightCenter,
           Button(Button.Props("fa-flask-potion", $.props.swipeRight, id = "swipeRight"))
-        ),
+        ).when($.props.hasElement),
       )
     )
     .build

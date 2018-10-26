@@ -29,7 +29,7 @@ object BluredBackgound {
   Style.addToDocument()
 
 
-  val component = ScalaComponent.builder[String]("Flashing")
+  val component = ScalaComponent.builder[String]("BluredBackground")
     .render($ => <.div(
       Style.bluredBackground,
       ^.backgroundImage := s"url('${$.props}')"

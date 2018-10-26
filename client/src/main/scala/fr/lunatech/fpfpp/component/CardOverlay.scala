@@ -45,7 +45,8 @@ object CardOverlay {
   class Backend($: BackendScope[Props, Unit]) {
 
     def render(props: Props) = {
-      <.div(Style.overlay,
+      <.div(
+        Style.overlay,
         ^.backgroundColor := props.backgroundColor.value,
         <.div(Style.icon, ^.color := props.color.value, ^.cls := props.icon),
         <.div(Style.text, ^.color := props.color.value, props.text)

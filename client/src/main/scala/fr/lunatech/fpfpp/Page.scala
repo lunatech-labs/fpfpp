@@ -1,13 +1,9 @@
 package fr.lunatech.fpfpp
 
-import java.time.Year
-
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
 object Page {
-
-//  def apply(props: Props) = component(props)
 
   def apply(props: Props) = component(props)
 
@@ -22,9 +18,12 @@ object Page {
   )
 
   def content(props: Props) =
-    <.div(<.img(^.src := "pumpkin.png"),
-          <.input.submit(
-            ^.value := "🎃",
-            ^.onClick --> Callback.alert(s"Happy Halloween ${props.year}!")))
+    <.div(
+      <.img(^.src := "pumpkin.png"),
+      <.input.submit(
+        ^.value := "🎃",
+        ^.onClick --> Callback.alert(s"Happy Halloween ${props.year}!")
+      )
+    )
 
 }

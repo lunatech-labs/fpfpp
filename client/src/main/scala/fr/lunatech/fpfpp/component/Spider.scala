@@ -8,7 +8,7 @@ import scalacss.ScalaCssReact._
 
 object Spider {
 
-  def legs(sideStyle: StyleA) = List.fill(4)(<.span(SpiderStyle.leg, sideStyle))
+  private def legs(sideStyle: StyleA) = List.fill(4)(<.span(SpiderStyle.leg, sideStyle))
 
   val component = ScalaComponent
     .builder[StyleA]("Spider")
