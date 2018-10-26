@@ -70,7 +70,19 @@ object HomePage {
             )
           ),
           Controls(Controls.Props(state.images.nonEmpty, iHaveFear, refresh, iHaveNotFear)),
-          Info(Info.Props(state.history, state.images.size, state.nbInitialImages))
+          <.div(
+            ^.visibility := "hidden",
+            <.span(<.span("# FaitPeur"),
+              <.span(^.id := "FaitPeur",
+                state.history.count(_ == Direction.Left))),
+            <.span(<.span("# FaitPasPeur"),
+              <.span(^.id := "FaitPasPeur",
+                state.history.count(_ == Direction.Right))),
+            <.span(<.span("# remaining images"),
+              <.span(^.id := "remainingImages", state.images.size)),
+            <.span(<.span("# total images"),
+              <.span(^.id := "totalImages", state.nbInitialImages))
+          )
         )
       )
     }

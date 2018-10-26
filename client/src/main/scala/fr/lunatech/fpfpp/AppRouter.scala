@@ -39,6 +39,7 @@ object AppRouter {
         <.p(HeaderStyle.h1, "Happy Halloween !")
       ),
       Spider(SpiderStyle.spiderTopRight),
+      Spider(SpiderStyle.spiderTopLeft),
       <.img(SpiderStyle.spiderwebCornerRight, ^.src := "/assets/img/spiderweb-corner-right.png"),
       <.div(AppStyle.appContent, r.render()),
       <.img(SpiderStyle.spiderwebCornerLeft, ^.src := "/assets/img/spiderweb-corner-right.png"),

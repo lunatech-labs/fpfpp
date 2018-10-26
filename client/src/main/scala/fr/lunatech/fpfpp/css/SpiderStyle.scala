@@ -28,6 +28,14 @@ object SpiderStyle extends StyleSheet.Inline {
     transform := "rotate(-180deg)"
   )
 
+  val spiderOrbit = keyframes(
+    0.%% -> keyframe(transform := "scale(0.6) translate(0, 0) rotate(0deg)"),
+    40.%% -> keyframe(transform := "scale(0.6) translate(20px, 200px) rotate(-12deg)"),
+    64.%% -> keyframe(transform := "scale(0.6) translate(20px, 200px) rotate(180deg)"),
+    65.%% -> keyframe(transform := "scale(0.6) translate(20px, 200px) rotate(180deg)"),
+    100.%% -> keyframe(transform := "scale(0.6) translate(0, 0) rotate(180deg)")
+  )
+
   val spiderAppear = keyframes(
     0.%% -> keyframe(left(-30.px), bottom(-30.px)),
     50.%% -> keyframe(left(75.px), bottom(75.px)),
@@ -49,6 +57,13 @@ object SpiderStyle extends StyleSheet.Inline {
     animationName(spiderAppear),
     animationDuration(9.second),
     animationTimingFunction.cubicBezier(.4, 0, 0.2, 1)
+  )
+
+  val spiderTopLeft = style(
+    top(15.px),
+    left(15.px),
+    animationDuration(7.second),
+    animationName(spiderOrbit),
   )
 
   val spiderTopRight = style(

@@ -15,7 +15,8 @@ object HeaderStyle extends StyleSheet.Inline {
 
   val logo = style(
     height(55.px),
-    marginLeft(15.px)
+    marginLeft(15.px),
+    zIndex(2)
   )
 
   val flicker = keyframes(
