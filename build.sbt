@@ -112,3 +112,8 @@ lazy val server = (project in file("server"))
 onLoad in Global := (onLoad in Global).value andThen { s: State =>
   "project server" :: s
 }
+
+addCommandAlias(
+  "clean",
+  "; server/clean ; client/clean; sharedJS/clean; sharedJVM/clean"
+)
